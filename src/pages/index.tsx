@@ -1,46 +1,57 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 
 const IndexPage = () => {
   console.log('INDEXPAGE RENDERING');
-  const [name, setName] = useState<string>('');
-  const [age, setAge] = useState<number>(0);
   return (
     <>
-      <div>
-        <input
-          type="text"
-          onChange={(e) => {
-            setName(e.target.value);
-          }}
-        />
-        <span>名前: {name}</span>
-      </div>
-      <div>
-        <button
-          onClick={() => {
-            setAge(age + 1);
-          }}
-        >
-          -
-        </button>
-        <p>{age}</p>
-        <button
-          onClick={() => {
-            setAge(age - 1);
-          }}
-        >
-          +
-        </button>
-        <span>年齢: {age}</span>
-      </div>
+      <NameComponent />
+      <AgeComponent />
     </>
   );
 };
 
 export default IndexPage;
 
-/***
- * 状態管理
- * データフェッチ
- *
- * ***/
+const useName = () => {
+  const [name, setName] = useState<string>('');
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setName(e.target.value);
+  };
+
+  return [name, onChange] as const;
+};
+
+const NameComponent = memo(() => {
+  console.log('NAME COMPONENT RENDERING');
+  const [name, onChange] = useName();
+  return (
+    <div>
+      <input type="text" onChange={onChange} />
+      <span>名前: {name}</span>
+    </div>
+  );
+});
+
+const useAge = () => {
+  const [age, setAge] = useState<number>(0);
+  const increment = () => {
+    setAge(age + 1);
+  };
+  const decrement = () => {
+    setAge(age - 1);
+  };
+  return [age, increment, decrement] as const;
+};
+
+const AgeComponent = memo(() => {
+  console.log('AGE COMPONENT RENDERING');
+  const [age, increment, decrement] = useAge();
+  return (
+    <div>
+      <button onClick={decrement}>-</button>
+      <p>{age}</p>
+      <button onClick={increment}>+</button>
+      <span>年齢: {age}</span>
+    </div>
+  );
+});
